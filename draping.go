@@ -71,8 +71,8 @@ type Camera struct {
 	Phi float64 // view angle
 }
 
-func DrawVerticalLine(d draw.Image, x, yMax, screenHeight int, c color.Color) {
-	drect := image.Rect(x, screenHeight-yMax, x+1, screenHeight)
+func DrawVerticalLine(d draw.Image, x, yMax, yMin int, c color.Color) {
+	drect := image.Rect(x, yMax, x+1, yMin)
 	draw.Draw(d,  drect, &image.Uniform{c}, image.Point{}, draw.Src)
 }
 
@@ -90,13 +90,19 @@ func (m *Map) Render(d draw.Image, c Camera) {
 	screenWidth := d.Bounds().Dx()
 	screenHeight := d.Bounds().Dy()
 
+	yBuffer := make([]int, screenWidth)
+	for y := 0; y < screenWidth; y++ {
+		yBuffer[y] = 0
+	}
+
 	sinphi := math.Sin(c.Phi)
 	cosphi := math.Cos(c.Phi)
 
+	Z := 1.0
+	dz := 1.0
 
-	for z := c.Distance; z > 0; z-- {
+	for Z < float64(c.Distance) {
 
-		Z := float64(z)
 		pleftX := (-cosphi*Z - sinphi*Z) + float64(c.Pos.X)
 		pleftY := ( sinphi*Z - cosphi*Z) + float64(c.Pos.Y)
 
@@ -110,23 +116,22 @@ func (m *Map) Render(d draw.Image, c Camera) {
 			X := int(pleftX + dx*float64(i))
 			Y := int(pleftY + dy*float64(i))
 
+			mapSize := m.Elevation.Bounds().Size()
+
+			if X < 0 || X >= mapSize.X || Y < 0 || Y >= mapSize.Y {
+				continue
+			}
+
 			elevation := 256 - int(m.Elevation.GrayAt(X, Y).Y)
 			col := m.Terrain.At(X, Y)
 
 			heighOnScreen := int((float64(c.Height - elevation) / Z) * c.ScaleHeight) + c.Horizon
-			DrawVerticalLine(d, i, heighOnScreen, screenHeight, col)
-
-			if i == screenWidth / 2 {
-				fmt.Printf("\ncamera: (%d,%d), height:%d, horizon: %d, distance: %d\n",
-					c.Pos.X, c.Pos.Y, c.Height, c.Horizon, c.Distance)
-				fmt.Printf("point on map: (%d,%d), color: %v, elevation: %d\n",
-					X, pleftY, col, elevation)
-				fmt.Printf("screen heigh: %d, width: %d, scale: %f\n", screenHeight, screenWidth,
-					c.ScaleHeight)
-				fmt.Printf("screen line: %d, distance z: %d\n", i, z)
-				fmt.Printf("heighOnScreen: %d\n", heighOnScreen)
+			if heighOnScreen >  yBuffer[i] {
+				DrawVerticalLine(d, i, screenHeight - heighOnScreen, screenHeight - yBuffer[i], col)
+				yBuffer[i] = heighOnScreen
 			}
 		}
+		Z = Z + dz
+		// dz = dz + 0.2
 	}
-	println("printing...done")
 }
