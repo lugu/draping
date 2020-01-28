@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"math"
+	"fmt"
 	"flag"
 	"image"
 	"image/draw"
@@ -19,7 +20,8 @@ var (
 
 	showMap = false
 	showLevel = false
-	screen *image.RGBA = nil
+	screen = image.NewRGBA(image.Rect(0, 0, 0, 0))
+
 	wnd nucular.MasterWindow = nil
 )
 
@@ -33,7 +35,7 @@ func resetCamera(screenSize, mapSize image.Point) {
 	camera.Height = 50
 	camera.Distance = screenSize.X/2
 	camera.Horizon = screenSize.Y/3*2
-	camera.ScaleHeight = 120.0
+	camera.ScaleHeight = 300
 }
 
 func render(w *nucular.Window) {
@@ -53,12 +55,14 @@ func render(w *nucular.Window) {
 func updatefn(w *nucular.Window) {
 	w.Row(0).Dynamic(1)
 
-	if screen == nil {
+	if w.WidgetBounds().W != screen.Bounds().Dx() ||
+		w.WidgetBounds().H != screen.Bounds().Dy() {
 		screenRect := image.Rect(0, 0,
-		w.WidgetBounds().W, w.WidgetBounds().H)
+			w.WidgetBounds().W, w.WidgetBounds().H)
 		screen = image.NewRGBA(screenRect)
 		mapSize := world.Terrain.Bounds().Size()
 		resetCamera(screenRect.Size(), mapSize)
+		render(w)
 	}
 
 	input := w.Input()
@@ -71,25 +75,27 @@ func updatefn(w *nucular.Window) {
 			showMap = false
 			showLevel = !showLevel
 		case 'd':
-			camera.Distance+=20
+			camera.Distance+=10
 		case 'D':
-			camera.Distance-=20
+			camera.Distance-=10
 		case 's':
-			camera.ScaleHeight+=0.5
+			camera.ScaleHeight+=1.0
 		case 'S':
-			camera.ScaleHeight-=0.5
+			camera.ScaleHeight-=1.0
 		case 'h':
-			camera.Horizon+=20
+			camera.Horizon+=10
 		case 'H':
-			camera.Horizon-=20
+			camera.Horizon-=10
 		case 'e':
-			camera.Height+=+20
+			camera.Height+=+10
 		case 'E':
-			camera.Height-=20
+			camera.Height-=10
 		case 'r':
 			camera.Phi+= math.Pi/6.0
 		case 'R':
 			camera.Phi-= math.Pi/6.0
+		case 'p':
+			fmt.Printf("%#v\n", camera)
 		}
 		switch e.Code {
 		case key.CodeQ, key.CodeEscape: // quit
@@ -105,7 +111,10 @@ func updatefn(w *nucular.Window) {
 			camera.Pos.Y += 20
 		}
 	}
-	render(w)
+
+	if len(input.Keyboard.Keys) != 0 {
+		render(w)
+	}
 	w.Image(screen)
 }
 

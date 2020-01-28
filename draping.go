@@ -72,7 +72,8 @@ type Camera struct {
 }
 
 func DrawVerticalLine(d draw.Image, x, yMax, yMin int, c color.Color) {
-	drect := image.Rect(x, yMax, x+1, yMin)
+	screenHeight := d.Bounds().Dy()
+	drect := image.Rect(x, screenHeight - yMax, x+1, screenHeight - yMin)
 	draw.Draw(d,  drect, &image.Uniform{c}, image.Point{}, draw.Src)
 }
 
@@ -88,7 +89,6 @@ func (m *Map) Render(d draw.Image, c Camera) {
 	*/
 
 	screenWidth := d.Bounds().Dx()
-	screenHeight := d.Bounds().Dy()
 
 	yBuffer := make([]int, screenWidth)
 	for y := 0; y < screenWidth; y++ {
@@ -117,17 +117,16 @@ func (m *Map) Render(d draw.Image, c Camera) {
 			Y := int(pleftY + dy*float64(i))
 
 			mapSize := m.Elevation.Bounds().Size()
-
 			if X < 0 || X >= mapSize.X || Y < 0 || Y >= mapSize.Y {
 				continue
 			}
 
-			elevation := 256 - int(m.Elevation.GrayAt(X, Y).Y)
+			elevation := int(m.Elevation.GrayAt(X, Y).Y)
 			col := m.Terrain.At(X, Y)
 
-			heighOnScreen := int((float64(c.Height - elevation) / Z) * c.ScaleHeight) + c.Horizon
+			heighOnScreen := int((float64(elevation - c.Height) / Z) * c.ScaleHeight) + c.Horizon
 			if heighOnScreen >  yBuffer[i] {
-				DrawVerticalLine(d, i, screenHeight - heighOnScreen, screenHeight - yBuffer[i], col)
+				DrawVerticalLine(d, i, heighOnScreen, yBuffer[i], col)
 				yBuffer[i] = heighOnScreen
 			}
 		}
