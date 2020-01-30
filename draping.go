@@ -117,12 +117,15 @@ func (m *Map) Render(d draw.Image, c Camera) {
 			Y := int(pleftY + dy*float64(i))
 
 			mapSize := m.Elevation.Bounds().Size()
-			if X < 0 || X >= mapSize.X || Y < 0 || Y >= mapSize.Y {
+			if X < - 2 || X > mapSize.X + 1 || Y < -2 || Y > mapSize.Y + 1 {
 				continue
 			}
 
 			elevation := int(m.Elevation.GrayAt(X, Y).Y)
 			col := m.Terrain.At(X, Y)
+			if X < 0 || X > mapSize.X - 1 || Y < 0 || Y > mapSize.Y - 1 {
+				col = BackgroundColor
+			}
 
 			heighOnScreen := int((float64(elevation - c.Height) / Z) * c.ScaleHeight) + c.Horizon
 			if heighOnScreen >  yBuffer[i] {
