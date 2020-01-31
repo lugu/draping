@@ -58,7 +58,7 @@ func Clear(d draw.Image, c color.Color) {
 }
 
 type Map struct {
-	Terrain image.Image
+	Terrain draw.Image
 	Elevation *image.Gray
 }
 
