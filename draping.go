@@ -22,7 +22,7 @@ var (
 
 // LoadImage retrieves and decodes the image file representing the
 // color of the ground.
-func LoadImage(input string) (image.Image, error) {
+func LoadImage(input string) (draw.Image, error) {
 	file, err := os.Open(input)
 	if err != nil {
 		return nil, fmt.Errorf("open: %w", err)
@@ -33,7 +33,9 @@ func LoadImage(input string) (image.Image, error) {
 	if err != nil {
 		return nil, fmt.Errorf("decode: %w", err)
 	}
-	return img, nil
+	dst := image.NewRGBA(img.Bounds())
+	draw.Draw(dst, dst.Bounds(), img, image.Point{}, draw.Src)
+	return dst, nil
 }
 
 // LoadLevel return a gray image representing a level elevation.
@@ -103,11 +105,11 @@ func (m *Map) Render(d draw.Image, c Camera) {
 
 	for Z < float64(c.Distance) {
 
-		pleftX := (-cosphi*Z - sinphi*Z) + float64(c.Pos.X)
-		pleftY := ( sinphi*Z - cosphi*Z) + float64(c.Pos.Y)
+		pleftX := ( cosphi*Z + sinphi*Z) + float64(c.Pos.X)
+		pleftY := (-sinphi*Z + cosphi*Z) + float64(c.Pos.Y)
 
-		prightX := ( cosphi*Z - sinphi*Z) + float64(c.Pos.X)
-		prightY := (-sinphi*Z - cosphi*Z) + float64(c.Pos.Y)
+		prightX := (-cosphi*Z + sinphi*Z) + float64(c.Pos.X)
+		prightY := ( sinphi*Z + cosphi*Z) + float64(c.Pos.Y)
 
 		dx := (prightX - pleftX) / float64(screenWidth)
 		dy := (prightY - pleftY) / float64(screenWidth)

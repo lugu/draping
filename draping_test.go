@@ -65,7 +65,7 @@ func helpTestDrawVerticalLine(t *testing.T, rect image.Rectangle, X, yMax int) {
 	red := color.RGBA{255, 0, 0, 255}
 	green := color.RGBA{0, 255, 0, 255}
 	Clear(dst, red)
-	DrawVerticalLine(dst, X, yMax, green)
+	DrawVerticalLine(dst, X, yMax, 0, green)
 	for x := 0; x < size.X; x++ {
 		for y := 0; y < size.Y; y++ {
 			r, g, b, a := dst.At(x, y).RGBA()
@@ -107,7 +107,14 @@ func helpTestRencder(t *testing.T, mapFilename, elevationFilename string) {
 	}
 	rect := image.Rect(0, 0, 128, 128)
 	dst := image.NewNRGBA(rect)
-	cam := Camera { image.Point{}, 120, 300, 300 }
+	cam := Camera {
+		Pos: image.Point{},
+		Height: 120,
+		Horizon: 300,
+		Distance: 300,
+		ScaleHeight: 120,
+		Phi: 0,
+	}
 	m.Render(dst, cam)
 }
 

@@ -1,23 +1,26 @@
 package main
 
 import (
-	"log"
 	"math"
+	"time"
 	"fmt"
-	"flag"
 	"image"
 	"image/draw"
 
-	"github.com/lugu/draping"
 	"golang.org/x/mobile/event/key"
 	"github.com/aarzilli/nucular"
 	"github.com/aarzilli/nucular/style"
+
+	"github.com/lugu/draping"
+	"github.com/lugu/draping/ps"
 )
 
 var (
 	camera draping.Camera
-	world draping.Map
+	stats = ps.NewStats()
+	world = stats.Map()
 
+	hasChanged = false
 	showMap = false
 	showLevel = false
 	screen = image.NewRGBA(image.Rect(0, 0, 0, 0))
@@ -29,10 +32,11 @@ func resetCamera(screenSize, mapSize image.Point) {
 
 	camera.Pos = image.Point{
 		mapSize.X/2,
-		mapSize.Y/2,
+		mapSize.Y/2 - 30,
 	}
 
 	camera.Height = 50
+	// camera.Phi-= math.Pi
 	camera.Distance = screenSize.X/2
 	camera.Horizon = screenSize.Y/3*2
 	camera.ScaleHeight = 300
@@ -112,32 +116,29 @@ func updatefn(w *nucular.Window) {
 		}
 	}
 
-	if len(input.Keyboard.Keys) != 0 {
+	if hasChanged || len(input.Keyboard.Keys) != 0 {
+		hasChanged = false
+		world = stats.Map()
 		render(w)
 	}
 	w.Image(screen)
 }
 
 func main() {
-	var mapFilename = flag.String("m", "", "Map file")
-	var elevationFilename = flag.String("e", "", "Elevation map file")
-	flag.Parse()
 
-	if *mapFilename == "" || *elevationFilename == "" {
-		log.Fatalf("Missing map files")
-	}
-	terrain, err := draping.LoadImage(*mapFilename)
-	if err != nil {
-		log.Fatalf("cannot load map %s: %s", *mapFilename, err)
-	}
-	elevation, err := draping.LoadLevel(*elevationFilename)
-	if err != nil {
-		log.Fatalf("cannot load elevation map %s: %s",
-			*elevationFilename, err)
-	}
-
-	world.Terrain = terrain
-	world.Elevation = elevation
+	tick := time.NewTicker(200 * time.Millisecond)
+	go func() {
+		for {
+			<-tick.C
+			wnd.Changed()
+			err := stats.Update()
+			if err != nil {
+				panic(err)
+			}
+			hasChanged = true
+			wnd.Changed()
+		}
+	}()
 
 	wnd = nucular.NewMasterWindow(0, "Render", updatefn)
 	wnd.SetStyle(style.FromTheme(style.DarkTheme, 2.0))

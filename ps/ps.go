@@ -9,16 +9,14 @@ import (
 	"os/exec"
 )
 
-type PidStatus struct {
+type ProcessStatus struct {
 	PID int
 	CPU float32
 	Mem float32
 	Command string
 }
 
-type Stats map[string][]PidStatus
-
-func PS() ([]PidStatus, error) {
+func PS() ([]ProcessStatus, error) {
 
 	cmd := exec.Command("ps", "-ewwo", "%cpu,%mem,pid,comm")
 	stdout, err := cmd.StdoutPipe()
@@ -39,9 +37,9 @@ func PS() ([]PidStatus, error) {
 	//  0.0  0.0 89110 tmux
 	reader := bufio.NewReader(bytes.NewBuffer(buf))
 	reader.ReadLine()
-	stats := make([]PidStatus, 0)
+	stats := make([]ProcessStatus, 0)
 	for {
-		var status PidStatus
+		var status ProcessStatus
 		n, err := fmt.Fscanln(reader,
 			&status.CPU, &status.Mem, &status.PID, &status.Command)
 		if err == io.EOF {
