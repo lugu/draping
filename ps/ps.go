@@ -1,18 +1,18 @@
 package ps
 
 import (
-	"io"
-	"bytes"
-	"io/ioutil"
 	"bufio"
+	"bytes"
 	"fmt"
+	"io"
+	"io/ioutil"
 	"os/exec"
 )
 
 type ProcessStatus struct {
-	PID int
-	CPU float32
-	Mem float32
+	PID     int
+	CPU     float32
+	Mem     float32
 	Command string
 }
 
@@ -44,7 +44,10 @@ func PS() ([]ProcessStatus, error) {
 			&status.CPU, &status.Mem, &status.PID, &status.Command)
 		if err == io.EOF {
 			break
-		} else if n != 4 || err != nil {
+		} else if n != 4 && err != nil {
+			if n == 0 {
+				break
+			}
 			return nil, fmt.Errorf("reading %d values %s: %#v",
 				n, err, stats)
 		}
