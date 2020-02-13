@@ -1,9 +1,9 @@
 package ps
 
 import (
-	"testing"
 	"image"
 	"image/color"
+	"testing"
 	"time"
 
 	"github.com/lugu/draping"
@@ -11,25 +11,24 @@ import (
 
 func TestDrawMetric(t *testing.T) {
 
-	size :=image.Rect(0, 0, 30, 120)
-	mp := &draping.Map {
-		Terrain: image.NewRGBA(size),
+	size := image.Rect(0, 0, 30, 120)
+	mp := &draping.Map{
+		Terrain:   image.NewRGBA(size),
 		Elevation: image.NewGray(size),
 	}
 
 	serie := Serie{
-		Label: "test",
+		Label:  "test",
 		Values: make([]Metric, 100),
 	}
 	for i := 0; i < len(serie.Values); i++ {
-		serie.Values[i] = Metric {
+		serie.Values[i] = Metric{
 			Percent: float64(i),
-			TS: time.Now(),
+			TS:      time.Now(),
 		}
 	}
 
 	DrawSerie(mp, serie, image.Rect(10, 10, 20, 110))
-
 
 	for i := 0; i < len(serie.Values); i++ {
 		y := 10 + i
@@ -42,7 +41,7 @@ func TestDrawMetric(t *testing.T) {
 					t.Errorf("(x:%d, y:%d) e:%d, r:%d, g:%d, b:%d, a:%d", x, y, e.Y, r, g, b, a)
 				}
 			} else {
-				e0 := uint8(float64(i)/100*ElevationMax)
+				e0 := uint8(float64(i) / 100 * ElevationMax)
 				r0, g0, b0, a0 := Tenth[i/10].RGBA()
 				if r != r0 || g != g0 || b != b0 || a != a0 || e.Y != e0 {
 					t.Errorf("(x:%d, y:%d) e:%d, r:%d, g:%d, b:%d, a:%d instead of e: %d, r:%d, g:%d, b:%d, a:%d", x, y, e.Y, r, g, b, a, e0, r0, g0, b0, a0)

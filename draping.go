@@ -1,15 +1,15 @@
 package draping
 
 import (
-	"os"
-	"fmt"
-	"math"
 	"errors"
+	"fmt"
 	"image"
-	"image/draw"
 	"image/color"
+	"image/draw"
 	_ "image/jpeg"
 	_ "image/png"
+	"math"
+	"os"
 )
 
 var (
@@ -17,7 +17,7 @@ var (
 )
 
 var (
-	BackgroundColor = color.RGBA{ 128, 128, 128, 255 }
+	BackgroundColor = color.RGBA{128, 128, 128, 255}
 )
 
 // LoadImage retrieves and decodes the image file representing the
@@ -60,23 +60,23 @@ func Clear(d draw.Image, c color.Color) {
 }
 
 type Map struct {
-	Terrain draw.Image
+	Terrain   draw.Image
 	Elevation *image.Gray
 }
 
 type Camera struct {
-	Pos image.Point
-	Height int // camera z position
-	Horizon int // heigh of the horizon line
-	Distance int // max distance to render
+	Pos         image.Point
+	Height      int // camera z position
+	Horizon     int // heigh of the horizon line
+	Distance    int // max distance to render
 	ScaleHeight float64
-	Phi float64 // view angle
+	Phi         float64 // view angle
 }
 
 func DrawVerticalLine(d draw.Image, x, yMax, yMin int, c color.Color) {
 	screenHeight := d.Bounds().Dy()
-	drect := image.Rect(x, screenHeight - yMax, x+1, screenHeight - yMin)
-	draw.Draw(d,  drect, &image.Uniform{c}, image.Point{}, draw.Src)
+	drect := image.Rect(x, screenHeight-yMax, x+1, screenHeight-yMin)
+	draw.Draw(d, drect, &image.Uniform{c}, image.Point{}, draw.Src)
 }
 
 func (m *Map) Render(d draw.Image, c Camera) {
@@ -84,10 +84,10 @@ func (m *Map) Render(d draw.Image, c Camera) {
 	Clear(d, BackgroundColor)
 
 	/*
-	posZ := int(m.Elevation.GrayAt(c.Pos.X, c.Pos.Y).Y)
-	if posZ > c.Height {
-		c.Height = posZ
-	}
+		posZ := int(m.Elevation.GrayAt(c.Pos.X, c.Pos.Y).Y)
+		if posZ > c.Height {
+			c.Height = posZ
+		}
 	*/
 
 	screenWidth := d.Bounds().Dx()
@@ -105,11 +105,11 @@ func (m *Map) Render(d draw.Image, c Camera) {
 
 	for Z < float64(c.Distance) {
 
-		pleftX := ( cosphi*Z + sinphi*Z) + float64(c.Pos.X)
+		pleftX := (cosphi*Z + sinphi*Z) + float64(c.Pos.X)
 		pleftY := (-sinphi*Z + cosphi*Z) + float64(c.Pos.Y)
 
 		prightX := (-cosphi*Z + sinphi*Z) + float64(c.Pos.X)
-		prightY := ( sinphi*Z + cosphi*Z) + float64(c.Pos.Y)
+		prightY := (sinphi*Z + cosphi*Z) + float64(c.Pos.Y)
 
 		dx := (prightX - pleftX) / float64(screenWidth)
 		dy := (prightY - pleftY) / float64(screenWidth)
@@ -119,18 +119,18 @@ func (m *Map) Render(d draw.Image, c Camera) {
 			Y := int(pleftY + dy*float64(i))
 
 			mapSize := m.Elevation.Bounds().Size()
-			if X < - 2 || X > mapSize.X + 1 || Y < -2 || Y > mapSize.Y + 1 {
+			if X < -2 || X > mapSize.X+1 || Y < -2 || Y > mapSize.Y+1 {
 				continue
 			}
 
 			elevation := int(m.Elevation.GrayAt(X, Y).Y)
 			col := m.Terrain.At(X, Y)
-			if X < 0 || X > mapSize.X - 1 || Y < 0 || Y > mapSize.Y - 1 {
+			if X < 0 || X > mapSize.X-1 || Y < 0 || Y > mapSize.Y-1 {
 				col = BackgroundColor
 			}
 
-			heighOnScreen := int((float64(elevation - c.Height) / Z) * c.ScaleHeight) + c.Horizon
-			if heighOnScreen >  yBuffer[i] {
+			heighOnScreen := int((float64(elevation-c.Height)/Z)*c.ScaleHeight) + c.Horizon
+			if heighOnScreen > yBuffer[i] {
 				DrawVerticalLine(d, i, heighOnScreen, yBuffer[i], col)
 				yBuffer[i] = heighOnScreen
 			}

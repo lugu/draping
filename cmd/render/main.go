@@ -1,26 +1,26 @@
 package main
 
 import (
-	"log"
-	"math"
-	"fmt"
 	"flag"
+	"fmt"
 	"image"
 	"image/draw"
+	"log"
+	"math"
 
-	"github.com/lugu/draping"
-	"golang.org/x/mobile/event/key"
 	"github.com/aarzilli/nucular"
 	"github.com/aarzilli/nucular/style"
+	"github.com/lugu/draping"
+	"golang.org/x/mobile/event/key"
 )
 
 var (
 	camera draping.Camera
-	world draping.Map
+	world  draping.Map
 
-	showMap = false
+	showMap   = false
 	showLevel = false
-	screen = image.NewRGBA(image.Rect(0, 0, 0, 0))
+	screen    = image.NewRGBA(image.Rect(0, 0, 0, 0))
 
 	wnd nucular.MasterWindow = nil
 )
@@ -28,13 +28,13 @@ var (
 func resetCamera(screenSize, mapSize image.Point) {
 
 	camera.Pos = image.Point{
-		mapSize.X/2,
-		mapSize.Y/2,
+		mapSize.X / 2,
+		mapSize.Y / 2,
 	}
 
 	camera.Height = 50
-	camera.Distance = screenSize.X/2
-	camera.Horizon = screenSize.Y/3*2
+	camera.Distance = screenSize.X / 2
+	camera.Horizon = screenSize.Y / 3 * 2
 	camera.ScaleHeight = 300
 }
 
@@ -75,25 +75,25 @@ func updatefn(w *nucular.Window) {
 			showMap = false
 			showLevel = !showLevel
 		case 'd':
-			camera.Distance+=10
+			camera.Distance += 10
 		case 'D':
-			camera.Distance-=10
+			camera.Distance -= 10
 		case 's':
-			camera.ScaleHeight+=1.0
+			camera.ScaleHeight += 1.0
 		case 'S':
-			camera.ScaleHeight-=1.0
+			camera.ScaleHeight -= 1.0
 		case 'h':
-			camera.Horizon+=10
+			camera.Horizon += 10
 		case 'H':
-			camera.Horizon-=10
+			camera.Horizon -= 10
 		case 'e':
-			camera.Height+=+10
+			camera.Height += +10
 		case 'E':
-			camera.Height-=10
+			camera.Height -= 10
 		case 'r':
-			camera.Phi+= math.Pi/6.0
+			camera.Phi += math.Pi / 6.0
 		case 'R':
-			camera.Phi-= math.Pi/6.0
+			camera.Phi -= math.Pi / 6.0
 		case 'p':
 			fmt.Printf("%#v\n", camera)
 		}

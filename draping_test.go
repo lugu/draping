@@ -1,10 +1,10 @@
 package draping
 
 import (
-	"testing"
 	"image"
 	"image/color"
 	"path/filepath"
+	"testing"
 )
 
 func helpTestLoapLevel(t *testing.T, filename string) {
@@ -53,7 +53,7 @@ func TestClear(t *testing.T) {
 			r0, g0, b0, a0 := BackgroundColor.RGBA()
 			if r != r0 || g != g0 || b != b0 || a != a0 {
 				t.Errorf("invalid color at (%d,%d): %#v instead of %#v",
-				x, y, dst.At(x, y), BackgroundColor)
+					x, y, dst.At(x, y), BackgroundColor)
 			}
 		}
 	}
@@ -70,12 +70,12 @@ func helpTestDrawVerticalLine(t *testing.T, rect image.Rectangle, X, yMax int) {
 		for y := 0; y < size.Y; y++ {
 			r, g, b, a := dst.At(x, y).RGBA()
 			r0, g0, b0, a0 := red.RGBA()
-			if x == X && y >= size.Y - yMax {
+			if x == X && y >= size.Y-yMax {
 				r0, g0, b0, a0 = green.RGBA()
 			}
 			if r != r0 || g != g0 || b != b0 || a != a0 {
 				t.Errorf("invalid color at (%d,%d): %#v instead of %#v",
-				x, y, dst.At(x, y), BackgroundColor)
+					x, y, dst.At(x, y), BackgroundColor)
 			}
 		}
 	}
@@ -101,23 +101,23 @@ func helpTestRencder(t *testing.T, mapFilename, elevationFilename string) {
 	if err != nil {
 		t.Errorf("%s: %s", elevationFilename, err)
 	}
-	m := Map {
-		Terrain:terrain,
+	m := Map{
+		Terrain:   terrain,
 		Elevation: elevation,
 	}
 	rect := image.Rect(0, 0, 128, 128)
 	dst := image.NewNRGBA(rect)
-	cam := Camera {
-		Pos: image.Point{},
-		Height: 120,
-		Horizon: 300,
-		Distance: 300,
+	cam := Camera{
+		Pos:         image.Point{},
+		Height:      120,
+		Horizon:     300,
+		Distance:    300,
 		ScaleHeight: 120,
-		Phi: 0,
+		Phi:         0,
 	}
 	m.Render(dst, cam)
 }
 
 func TestRender(t *testing.T) {
-	helpTestRencder(t,"green_512_512.png", "green_512_512_gray.png")
+	helpTestRencder(t, "green_512_512.png", "green_512_512_gray.png")
 }
